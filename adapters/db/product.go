@@ -63,7 +63,7 @@ func (p *ProductDb) update(product app.ProductInterface) (app.ProductInterface, 
 
 func (p *ProductDb) Save(product app.ProductInterface) (app.ProductInterface, error) {
 	var rows int
-	p.db.QueryRow("SELECT id FROM products WHERE id = ?", product.GetID()).Scan(&rows)
+	p.db.QueryRow("Select count(*) from products where id=?", product.GetID()).Scan(&rows)
 	if rows == 0 {
 		_, err := p.create(product)
 		if err != nil {
@@ -75,6 +75,5 @@ func (p *ProductDb) Save(product app.ProductInterface) (app.ProductInterface, er
 			return nil, err
 		}
 	}
-
 	return product, nil
 }
