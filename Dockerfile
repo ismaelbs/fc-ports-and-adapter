@@ -1,5 +1,8 @@
 FROM golang:1.16
 
+ARG USERNAME=www-data
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
 WORKDIR /go/src
 ENV PATH="/go/bin:${PATH}"
 
@@ -9,10 +12,10 @@ RUN go get -u github.com/spf13/cobra@latest && \
 
 RUN apt-get update && apt-get install sqlite3 -y
 
-RUN usermod -u 1000 www-data
+RUN usermod -u $USER_UID $USERNAME
 RUN mkdir -p /var/www/.cache
-RUN chown -R www-data:www-data /go
-RUN chown -R www-data:www-data /var/www/.cache
-USER www-data
+RUN chown -R $USERNAME:$USERNAME /go
+RUN chown -R $USERNAME:$USERNAME /var/www/.cache
+USER $USERNAME
 
 CMD ["tail", "-f", "/dev/null"]
