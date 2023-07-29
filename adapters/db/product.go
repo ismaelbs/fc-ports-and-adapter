@@ -28,3 +28,53 @@ func (p *ProductDb) Get(id string) (app.ProductInterface, error) {
 	}
 	return &product, nil
 }
+
+func (p *ProductDb) create(product app.ProductInterface) (app.ProductInterface, error) {
+	stmt, err := p.db.Prepare("INSERT INTO products (id, name, status, price) VALUES (?, ?, ?, ?)")
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.Exec(product.GetID(), product.GetName(), product.GetStatus(), product.GetPrice())
+	if err != nil {
+		return nil, err
+	}
+	err = stmt.Close()
+	if err != nil {
+		return nil, err
+	}
+	return product, nil
+}
+
+func (p *ProductDb) update(product app.ProductInterface) (app.ProductInterface, error) {
+	stmt, err := p.db.Prepare("UPDATE products SET name = ?, status = ?, price = ? WHERE id = ?")
+	if err != nil {
+		return nil, err
+	}
+	_, err = stmt.Exec(product.GetName(), product.GetStatus(), product.GetPrice(), product.GetID())
+	if err != nil {
+		return nil, err
+	}
+	err = stmt.Close()
+	if err != nil {
+		return nil, err
+	}
+	return product, nil
+}
+
+func (p *ProductDb) Save(product app.ProductInterface) (app.ProductInterface, error) {
+	var rows int
+	p.db.QueryRow("SELECT id FROM products WHERE id = ?", product.GetID()).Scan(&rows)
+	if rows == 0 {
+		_, err := p.create(product)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		_, err := p.update(product)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return product, nil
+}
