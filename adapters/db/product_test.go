@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ismaelbs/fc-ports-and-adapter/adapters/db"
+	"github.com/ismaelbs/fc-ports-and-adapter/app"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,4 +41,29 @@ func TestProductdb_Get(t *testing.T) {
 	require.Equal(t, "Product 1", product.GetName())
 	require.Equal(t, 0.0, product.GetPrice())
 	require.Equal(t, "disabled", product.GetStatus())
+}
+
+func TestProductdb_Save(t *testing.T) {
+	setUp()
+	defer Db.Close()
+
+	product := app.NewProduct()
+	product.Name = "Product 1"
+	product.Price = 0
+
+	productDb := db.NewProductDb(Db)
+	productResult, err := productDb.Save(product)
+
+	require.Nil(t, err)
+	require.Equal(t, product.GetName(), productResult.GetName())
+	require.Equal(t, product.GetPrice(), productResult.GetPrice())
+	require.Equal(t, product.GetStatus(), productResult.GetStatus())
+
+	product.Status = "enabled"
+	productResult, err = productDb.Save(product)
+	require.Nil(t, err)
+	require.Equal(t, product.GetName(), productResult.GetName())
+	require.Equal(t, product.GetPrice(), productResult.GetPrice())
+	require.Equal(t, product.GetStatus(), productResult.GetStatus())
+
 }
