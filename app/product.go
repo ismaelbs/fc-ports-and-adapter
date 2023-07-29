@@ -18,14 +18,14 @@ type ProductInterface interface {
 }
 
 type ProductServiceInterface interface {
-	Enable(p ProductInterface) error
-	Disable(p ProductInterface) error
+	Enable(p ProductInterface) (ProductInterface, error)
+	Disable(p ProductInterface) (ProductInterface, error)
 	Get(id string) (ProductInterface, error)
 	Create(name string, price float64) (ProductInterface, error)
 }
 
 type ProductWriter interface {
-	Save(p ProductInterface) error
+	Save(p ProductInterface) (ProductInterface, error)
 }
 
 type ProductReader interface {
@@ -53,13 +53,12 @@ type Product struct {
 	Price  float64 `valid:"float,optional"`
 }
 
-func Create(name string, price float64) (*Product, error) {
-	return &Product{
+func NewProduct() *Product {
+	product := Product{
 		ID:     uuid.UUIDv4(),
-		Name:   name,
 		Status: DISABLED,
-		Price:  price,
-	}, nil
+	}
+	return &product
 }
 
 func (p *Product) IsValid() (bool, error) {
